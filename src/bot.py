@@ -1,7 +1,9 @@
 import os
+from typing import List
 
 import discord
 
+from .command_abs import CommandAbs
 from .command_parser import CommandParser
 from .dotenv import load_env
 
@@ -15,10 +17,10 @@ class BotError(Exception):
 class Bot(discord.Client):
     """Class representing the bot"""
 
-    def __init__(self) -> None:
+    def __init__(self, command_list: List[CommandAbs]) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
-        self._command_parser = CommandParser()
+        self._command_parser = CommandParser(command_list)
         super().__init__(intents=intents)
 
     def run(self) -> None:
@@ -35,4 +37,4 @@ class Bot(discord.Client):
         if message.content.startswith("!"):
             command = self._command_parser.parse(message.content)
             if command is not None:
-                command(message)
+                command.execute(message)

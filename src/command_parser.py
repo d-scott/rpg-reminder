@@ -1,18 +1,18 @@
-from typing import Callable, Dict
+from typing import Dict, List
 
-from discord import Message
+from .command_abs import CommandAbs
 
 
 class CommandParser:
     """Class that parses commands sent to the bot"""
 
-    def __init__(self) -> None:
-        self.command_dict: Dict[str, Callable[[Message], None]] = {
-            "print": lambda message: print(message.content)
-        }
+    def __init__(self, command_list: List[CommandAbs]) -> None:
+        self.command_dict: Dict[str, CommandAbs] = {}
+        for command in command_list:
+            self.command_dict.update({command.command_name: command})
 
     @staticmethod
-    def _get_command(message: str) -> str:
+    def _get_command_name(message: str) -> str:
         message_stripped_bang = message[1:]
         try:
             command = message_stripped_bang.split(" ", maxsplit=1)[0]
@@ -20,10 +20,10 @@ class CommandParser:
             command = ""
         return command
 
-    def parse(self, message: str) -> None | Callable[[Message], None]:
+    def parse(self, message: str) -> None | CommandAbs:
         print("Running parser...")
-        command = self._get_command(message)
-        print(f"Got command: {command}")
-        if command in self.command_dict:
-            return self.command_dict[command]
+        command_name = self._get_command_name(message)
+        print(f"Got command: {command_name}")
+        if command_name in self.command_dict:
+            return self.command_dict[command_name]
         return None
